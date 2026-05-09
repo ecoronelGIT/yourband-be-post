@@ -1,16 +1,16 @@
 # yourband-be-post
 
-Microservicio de publicaciones para la plataforma **YourBand** — red social para músicos.
+Post management microservice for the **YourBand** platform — a social network for musicians.
 
-## ¿Qué hace?
+## What does it do?
 
-- CRUD de posts (texto, imagen, video de YouTube)
-- Feed cronológico de posts de las bandas que sigue el usuario
-- Sistema de likes
-- Sistema de comentarios
-- Notifica a `be-notification` de forma asíncrona ante likes y comentarios
+- Full CRUD for posts (text, image, YouTube video)
+- Chronological feed of posts from bands the user follows
+- Like system
+- Comment system
+- Asynchronously notifies `be-notification` on likes and comments
 
-## Arquitectura general
+## Architecture
 
 ```mermaid
 graph TD
@@ -21,7 +21,7 @@ graph TD
     POST --> DB[(PostgreSQL<br/>:5436)]
 ```
 
-## Flujo del Feed
+## Feed Flow
 
 ```mermaid
 sequenceDiagram
@@ -34,39 +34,39 @@ sequenceDiagram
     GW->>POST: GET /post/v1/posts/feed (X-User-Id)
     POST->>BAND: GET /band/v1/bands/following (X-User-Id)
     BAND-->>POST: [bandId1, bandId2, ...]
-    POST-->>GW: posts ordenados por fecha DESC
+    POST-->>GW: posts sorted by date DESC
     GW-->>FE: PostPage
 ```
 
-## Tecnologías
+## Tech Stack
 
-| Tecnología | Uso |
+| Technology | Purpose |
 |---|---|
-| Java 21 | Lenguaje |
-| Spring Boot 3.3.5 | Framework principal |
-| Spring MVC | API REST |
-| Spring Data JPA | Persistencia |
-| PostgreSQL 16 | Base de datos (puerto 5436) |
-| Lombok | Reducción de boilerplate |
+| Java 21 | Language |
+| Spring Boot 3.3.5 | Main framework |
+| Spring MVC | REST API |
+| Spring Data JPA | Persistence |
+| PostgreSQL 16 | Database (port 5436) |
+| Lombok | Boilerplate reduction |
 | Maven | Build tool |
 
-## Endpoints principales
+## Main Endpoints
 
-| Método | Ruta | Descripción |
+| Method | Path | Description |
 |---|---|---|
-| `GET` | `/v1/posts/feed` | Feed del usuario (bandas seguidas, orden cronológico) |
-| `GET` | `/v1/posts/band/{bandId}` | Posts de una banda específica |
-| `POST` | `/v1/posts` | Crear post |
-| `DELETE` | `/v1/posts/{id}` | Eliminar post |
-| `POST` | `/v1/posts/{id}/likes` | Dar like |
-| `DELETE` | `/v1/posts/{id}/likes` | Quitar like |
-| `GET` | `/v1/posts/{id}/comments` | Listar comentarios (paginado) |
-| `POST` | `/v1/posts/{id}/comments` | Agregar comentario |
-| `DELETE` | `/v1/posts/{postId}/comments/{commentId}` | Eliminar comentario |
+| `GET` | `/v1/posts/feed` | User feed (followed bands, chronological order) |
+| `GET` | `/v1/posts/band/{bandId}` | Posts from a specific band |
+| `POST` | `/v1/posts` | Create a post |
+| `DELETE` | `/v1/posts/{id}` | Delete a post |
+| `POST` | `/v1/posts/{id}/likes` | Like a post |
+| `DELETE` | `/v1/posts/{id}/likes` | Unlike a post |
+| `GET` | `/v1/posts/{id}/comments` | List comments (paginated) |
+| `POST` | `/v1/posts/{id}/comments` | Add a comment |
+| `DELETE` | `/v1/posts/{postId}/comments/{commentId}` | Delete a comment |
 
-> Todos los endpoints requieren el header `X-User-Id` (inyectado por el gateway).
+> All endpoints require the `X-User-Id` header (injected by the gateway).
 
-## Modelo de datos
+## Data Model
 
 ```mermaid
 erDiagram
@@ -94,11 +94,11 @@ erDiagram
         text content
         timestamp created_at
     }
-    posts ||--o{ post_likes : recibe
-    posts ||--o{ post_comments : tiene
+    posts ||--o{ post_likes : receives
+    posts ||--o{ post_comments : has
 ```
 
-## Configuración
+## Configuration
 
 ```properties
 server.port=8084
@@ -108,13 +108,13 @@ services.band.url=http://localhost:8083/band
 services.notification.url=http://localhost:8085/notification
 ```
 
-## Cómo correr
+## Running locally
 
 ```bash
 mvn spring-boot:run
 ```
 
-Requiere PostgreSQL corriendo en el puerto `5436`. Podés levantarlo con:
+Requires PostgreSQL running on port `5436`. Start it with:
 
 ```bash
 docker-compose up postgres-post -d
